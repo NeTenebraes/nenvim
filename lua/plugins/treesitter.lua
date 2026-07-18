@@ -13,7 +13,7 @@ ts.install({
   "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline",
 
   -- Shell / sistema
-  "bash", "awk", "tmux", "make", "cmake",
+  "bash", "awk", "make", "cmake",
 
   -- Lenguajes principales
   "c", "cpp", "python", "java",
