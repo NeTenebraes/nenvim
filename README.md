@@ -1,5 +1,7 @@
 # nenvim
 
+![Dashboard](https://raw.githubusercontent.com/NeTenebraes/nenvim/refs/heads/main/docs/images/Dashboard.webp)
+
 nenvim is a personal Neovim configuration, designed to be modular, efficient, and maintainable. It focuses on a clean development workflow with curated plugins for modern coding tasks.
 
 ## Features
