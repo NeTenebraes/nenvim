@@ -25,6 +25,7 @@ local ok_mti, mti = pcall(require, "mason-tool-installer")
 if ok_mti then
 	mti.setup({
 		ensure_installed = {
+			--"luacheck",
 			"astro-language-server",
 			"bash-language-server",
 			"clangd",
@@ -42,8 +43,8 @@ if ok_mti then
 			"vue-language-server",
 			"vtsls",
 			"yaml-language-server",
-			"typescript-language-server", -- <-- AGREGA ESTE para dar soporte al tsdk de Astro
-
+			"typescript-language-server",
+			"oxlint",
 			"prettier",
 			"prettierd",
 			"stylua",
@@ -318,10 +319,7 @@ vim.lsp.config("lua_ls", {
 				maxPreload = 100,
 				preloadFileSize = 1000,
 				-- Solo indexamos el directorio del proyecto actual de Neovim
-				library = {
-					vim.fn.expand("$VIMRUNTIME/lua"),
-					vim.fn.expand("$VIMRUNTIME/lua/vim/lsp"),
-				},
+				library = {},
 			},
 			telemetry = { enable = false },
 		},

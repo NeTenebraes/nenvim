@@ -10,6 +10,22 @@ end
 -- NOICE: configuración principal
 -- ============================================================
 noice.setup({
+
+	-- ----------------------------------------------------------
+	-- LSP
+	-- ----------------------------------------------------------
+	lsp = {
+		progress = {
+			enabled = true,
+			format = "lsp_progress", -- Utiliza el formateador interno que agrupa subtareas
+			view = "mini", -- Lo mantiene en tu vista mini abajo a la derecha
+		},
+		override = {
+			["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+			["vim.lsp.util.stylize_markdown"] = true,
+			["cmp.entry.get_documentation"] = true,
+		},
+	},
 	-- ----------------------------------------------------------
 	-- Cmdline
 	-- ----------------------------------------------------------
@@ -24,17 +40,6 @@ noice.setup({
 	messages = {
 		enabled = true,
 		view = "mini",
-	},
-
-	-- ----------------------------------------------------------
-	-- LSP
-	-- ----------------------------------------------------------
-	lsp = {
-		override = {
-			["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-			["vim.lsp.util.stylize_markdown"] = true,
-			["cmp.entry.get_documentation"] = true,
-		},
 	},
 
 	-- ----------------------------------------------------------
