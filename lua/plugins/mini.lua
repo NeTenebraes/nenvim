@@ -6,7 +6,17 @@
 -- Tabla de configuración de todos tus módulos de mini.nvim
 local modules = {
 	-- Módulos con configuración por defecto (se cargan con {})
-	surround = {},
+surround = {
+        mappings = {
+            add            = 'Sa', -- Añadir envoltura (Normal y Visual)
+            delete         = 'Sd', -- Borrar envoltura
+            replace        = 'Sr', -- Reemplazar envoltura
+            find           = 'Sf', -- Buscar adelante
+            find_left      = 'SF', -- Buscar atrás
+            highlight      = 'Sh', -- Resaltar
+            update_n_lines = 'Sn', -- Cambiar líneas evaluadas
+        },
+    },
 	ai = {},
 	comment = {},
 	pairs = {},

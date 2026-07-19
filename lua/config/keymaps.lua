@@ -1,5 +1,6 @@
 local map = vim.keymap.set
 local Snacks = require("snacks")
+local vite = require("plugins.live-server")
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -58,28 +59,7 @@ vmap("<C-S-j>", function()
 	require("mini.move").move_selection("down")
 end, "Mini Move: Down")
 
--- --- MINI.SURROUND (Envolturas y delimitadores) ----------
-nmap("Sa", function()
-	require("mini.surround").add()
-end, "Mini Surround: Add")
-nmap("Sd", function()
-	require("mini.surround").delete()
-end, "Mini Surround: Delete")
-nmap("Sr", function()
-	require("mini.surround").replace()
-end, "Mini Surround: Replace")
-nmap("Sf", function()
-	require("mini.surround").find()
-end, "Mini Surround: Find Forward")
-nmap("SF", function()
-	require("mini.surround").find_left()
-end, "Mini Surround: Find Backward")
-nmap("Sh", function()
-	require("mini.surround").highlight()
-end, "Mini Surround: Highlight")
-nmap("Sn", function()
-	require("mini.surround").update_n_lines()
-end, "Mini Surround: Update N Lines")
+
 
 -- --- MINI.COMMENT (Comentarios rápidos) ------------------
 nmap("gcc", function()
@@ -186,13 +166,9 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- --- CONTROL DE BÚSQUEDA Y ESCAPE ------------------------
--- --- CONTROL DE BÚSQUEDA Y ESCAPE ------------------------
 imap("<C-c>", "<Esc>", "Insert: Escape")
 nmap("<C-c>", "<cmd>nohlsearch<CR>", "Clear Search Highlight")
-
--- 1. Cancelar selección visual estándar y salir de Multi-Cursor
 vmap("<C-c>", "<Esc>", "Visual: Escape / Cancel Multi-Cursor")
--- 2. Cerrar ventanas flotantes de ayuda, diagnósticos o Snacks Pickers con <C-c>
 nmap("<C-c>", function()
 	-- Cierra el resaltado de búsqueda primero
 	vim.cmd("nohlsearch")
@@ -261,21 +237,6 @@ end, "Restart Config")
 
 nmap("<leader>z", "za", "Fold: Toggle under cursor")
 
--- --- INTEGRACIONES CON SNACKS ---------------------------
-nmap("<leader>tt", function()
-	Snacks.terminal()
-end, "Terminal: Toggle")
-nmap("<leader>ud", function()
-	Snacks.toggle.dim():toggle()
-end, "Focus: Toggle Dim")
-nmap("<leader>uz", function()
-	Snacks.toggle.zen():toggle()
-end, "Zen: Toggle Mode")
-
--- --- SERVIDORES LOCALES (Live Server) --------------------
-local vite = require("plugins.live-server")
-nmap("<leader>lt", vite.toggle_vite_server, "Vite: Toggle Server (Multi-project)")
-
 -- --- HISTORIAL DE CAMBIOS (Undotree) ---------------------
 nmap("<leader>u", function()
 	vim.cmd.packadd("nvim.undotree")
@@ -284,6 +245,22 @@ nmap("<leader>u", function()
 		undotree.open()
 	end
 end, "Toggle Builtin Undotree")
+
+-- --- INTEGRACIONES CON SNACKS ---------------------------
+nmap("<leader>tt", function()
+	Snacks.terminal()
+end, "Terminal: Toggle")
+
+nmap("<leader>ud", function()
+	Snacks.toggle.dim():toggle()
+end, "Focus: Toggle Dim")
+
+nmap("<leader>uz", function()
+	Snacks.toggle.zen():toggle()
+end, "Zen: Toggle Mode")
+
+-- --- SERVIDORES LOCALES (Live Server) --------------------
+nmap("<leader>us", vite.toggle_vite_server, "Vite: Toggle Server (Multi-project)")
 
 -- GIT (Lazygit & Gitsigns)
 nmap("<leader>gg", function()
