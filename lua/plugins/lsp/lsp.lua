@@ -1,8 +1,7 @@
 -- ============================================================================
--- 1. CONFIGURACIÓN E INICIALIZACIÓN DE MASON
+-- MASON
 -- ============================================================================
 
--- Inyectar los binarios de Mason al PATH antes de que cargue cualquier cosa
 vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
 
 local ok_mason, mason = pcall(require, "mason")
@@ -22,41 +21,77 @@ mason.setup({
   },
 })
 
--- Asegurar la instalación automatizada de herramientas externas
 local ok_mti, mti = pcall(require, "mason-tool-installer")
 if ok_mti then
   mti.setup({
     ensure_installed = {
-      -- LSPs
-      "astro-language-server", "bash-language-server", "clangd", "css-lsp",
-      -- "cssmodules-language-server", "dockerfile-language-server", 
-      "emmet-language-server", "html-lsp", "json-lsp", "lua-language-server",
-      "marksman", "prisma-language-server", "pyright", "svelte-language-server",
-      "tailwindcss-language-server", "taplo", "vue-language-server", "vtsls",
+      "astro-language-server",
+      "bash-language-server",
+      "clangd",
+      "css-lsp",
+      "emmet-language-server",
+      "html-lsp",
+      "json-lsp",
+      "lua-language-server",
+      "marksman",
+      "prisma-language-server",
+      "basedpyright",
+      "svelte-language-server",
+      "tailwindcss-language-server",
+      "taplo",
+      "vue-language-server",
+      "vtsls",
       "yaml-language-server",
-      -- Formatters & Linters & DAP
-      "prettier", "prettierd", "stylua", "black", "isort", "ruff", "shfmt",
-      "clang-format", "shellcheck", "markdownlint", "stylelint",
-      "bash-debug-adapter", "codelldb", "debugpy", "js-debug-adapter",
+
+      "prettier",
+      "prettierd",
+      "stylua",
+      "black",
+      "isort",
+      "ruff",
+      "shfmt",
+      "clang-format",
+      "shellcheck",
+      "markdownlint",
+      "stylelint",
+
+      "bash-debug-adapter",
+      "codelldb",
+      "debugpy",
+      "js-debug-adapter",
     },
     run_on_start = true,
-    auto_update = false,
+    auto_update = true,
   })
 end
 
 -- ============================================================================
--- 2. CAPABILITIES (INTEGRACIÓN CON NVIM-CMP)
+-- CAPABILITIES GLOBALES
 -- ============================================================================
 
 local capabilities = vim.lsp.protocol.make_client_capabilities()
+
 local ok_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
 if ok_cmp then
   capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 end
+
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
+-- Si notas lag en workspaces grandes, deja esto activado:
+if capabilities.workspace then
+  capabilities.workspace.didChangeWatchedFiles = nil
+end
+
+vim.lsp.config("*", {
+  capabilities = capabilities,
+  root_markers = {
+    ".git",
+  },
+})
+
 -- ============================================================================
--- 3. UI Y CONFIGURACIÓN DE DIAGNÓSTICOS GLOBALES
+-- DIAGNÓSTICOS
 -- ============================================================================
 
 vim.diagnostic.config({
@@ -82,136 +117,215 @@ vim.diagnostic.config({
 })
 
 -- ============================================================================
--- 4. DICCIONARIO DE CONFIGURACIONES ESPECÍFICAS DE SERVIDORES (WEB OPTIMIZED)
+-- SERVERS
 -- ============================================================================
 
-local servers = {
-  -- JavaScript, TypeScript y React (JSX / TSX)
-  vtsls = {
-    cmd = { "vtsls", "--stdio" },
-    filetypes = { "javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx" },
-    on_attach = function(client)
-      -- Deshabilitar formateo para delegar en conform.nvim / prettier
-      client.server_capabilities.documentFormattingProvider = false
-      client.server_capabilities.documentRangeFormattingProvider = false
+vim.lsp.config("vtsls", {
+  cmd = { "vtsls", "--stdio" },
+  filetypes = {
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescriptreact",
+    "typescript.tsx",
+  },
+  root_markers = {
+    "tsconfig.json",
+    "jsconfig.json",
+    "package.json",
+    ".git",
+  },
+  on_attach = function(client)
+    client.server_capabilities.documentFormattingProvider = false
+    client.server_capabilities.documentRangeFormattingProvider = false
+  end,
+})
+
+vim.lsp.config("astro", {
+  cmd = { "astro-ls", "--stdio" },
+  filetypes = { "astro" },
+  root_markers = {
+    "astro.config.mjs",
+    "astro.config.ts",
+    "package.json",
+    ".git",
+  },
+  init_options = {
+    typescript = {
+      tsdk = vim.fn.stdpath("data") .. "/mason/packages/typescript-language-server/node_modules/typescript/lib",
+    },
+  },
+})
+
+vim.lsp.config("svelte", {
+  cmd = { "svelteserver", "--stdio" },
+  filetypes = { "svelte" },
+  root_markers = {
+    "svelte.config.js",
+    "svelte.config.ts",
+    "package.json",
+    ".git",
+  },
+})
+
+vim.lsp.config("volar", {
+  cmd = { "vue-language-server", "--stdio" },
+  filetypes = { "vue" },
+  root_markers = {
+    "vue.config.js",
+    "vue.config.ts",
+    "vite.config.js",
+    "vite.config.ts",
+    "package.json",
+    ".git",
+  },
+})
+
+vim.lsp.config("html", {
+  cmd = { "vscode-html-language-server", "--stdio" },
+  filetypes = { "html", "templ" },
+  root_markers = { ".git", "package.json" },
+})
+
+vim.lsp.config("cssls", {
+  cmd = { "vscode-css-language-server", "--stdio" },
+  filetypes = { "css", "scss", "less" },
+  root_markers = { ".git", "package.json" },
+})
+
+vim.lsp.config("tailwindcss", {
+  cmd = { "tailwindcss-language-server", "--stdio" },
+  filetypes = {
+    "html",
+    "css",
+    "scss",
+    "sass",
+    "javascriptreact",
+    "typescriptreact",
+    "vue",
+    "svelte",
+    "astro",
+  },
+  root_markers = {
+    "tailwind.config.js",
+    "tailwind.config.ts",
+    "postcss.config.js",
+    "postcss.config.ts",
+    "package.json",
+    ".git",
+  },
+})
+
+vim.lsp.config("emmet_language_server", {
+  cmd = { "emmet-language-server", "--stdio" },
+  filetypes = {
+    "html",
+    "css",
+    "scss",
+    "sass",
+    "less",
+    "javascriptreact",
+    "typescriptreact",
+    "vue",
+    "svelte",
+    "astro",
+  },
+  root_markers = { ".git", "package.json" },
+})
+
+vim.lsp.config("jsonls", {
+  cmd = { "vscode-json-language-server", "--stdio" },
+  filetypes = { "json", "jsonc" },
+  root_markers = { ".git", "package.json" },
+})
+
+-- ============================================================================
+-- SERVERS (PYTHON SIN SPAM DE PROGRESO)
+-- ============================================================================
+
+vim.lsp.config("basedpyright", {
+  cmd = { "basedpyright-langserver", "--stdio" },
+  filetypes = { "python" },
+  root_markers = {
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "requirements.txt",
+    ".git",
+  },
+  -- Intercepta y filtra las notificaciones repetitivas de progreso
+  handlers = {
+    ["$/progress"] = function(err, result, ctx)
+      if result.token == (vim.g.basedpyright_progress_token or result.token) then
+        vim.g.basedpyright_progress_token = result.token
+        vim.lsp.handlers["$/progress"](err, result, ctx)
+      end
     end,
   },
-
-  -- Astro framework
-  astro = {
-    cmd = { "astro-ls", "--stdio" },
-    filetypes = { "astro" },
-    init_options = {
-      typescript = {
-        tsdk = vim.fn.stdpath("data") .. "/mason/packages/typescript-language-server/node_modules/typescript/lib",
+  settings = {
+    basedpyright = {
+      disableTaggedHints = true,
+      analysis = {
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+        diagnosticMode = "openFilesOnly",
+        typeCheckingMode = "basic",
       },
     },
   },
+})
 
-  -- Svelte
-  svelte = {
-    cmd = { "svelteserver", "--stdio" },
-    filetypes = { "svelte" },
+vim.lsp.config("ruff", {
+  cmd = { "ruff", "server" },
+  filetypes = { "python" },
+  root_markers = {
+    "pyproject.toml",
+    "setup.py",
+    "setup.cfg",
+    "requirements.txt",
+    ".git",
   },
+  on_attach = function(client)
+    client.server_capabilities.hoverProvider = false
+  end,
+})
 
-  -- Vue (Volar)
-  volar = {
-    cmd = { "vue-language-server", "--stdio" },
-    filetypes = { "vue" },
+vim.lsp.config("lua_ls", {
+  cmd = { "lua-language-server" },
+  filetypes = { "lua" },
+  root_markers = {
+    ".luarc.json",
+    ".luarc.jsonc",
+    ".git",
   },
-
-  -- HTML estándar y plantillas
-  html = {
-    cmd = { "vscode-html-language-server", "--stdio" },
-    filetypes = { "html", "templ" },
-  },
-
-  -- CSS, SCSS y Less
-  cssls = {
-    cmd = { "vscode-css-language-server", "--stdio" },
-    filetypes = { "css", "scss", "less" },
-  },
-
-  -- Tailwind CSS (Inyección de clases en frameworks web)
-  tailwindcss = {
-    cmd = { "tailwindcss-language-server", "--stdio" },
-    filetypes = { "html", "css", "scss", "sass", "javascriptreact", "typescriptreact", "vue", "svelte", "astro" },
-  },
-
-  -- Emmet (Expansión de snippets ultrarrápida en HTML/JSX/Frameworks)
-  emmet_language_server = {
-    cmd = { "emmet-language-server", "--stdio" },
-    filetypes = { "html", "css", "scss", "sass", "less", "javascriptreact", "typescriptreact", "vue", "svelte", "astro" },
-  },
-
-  -- JSON y archivos de configuración estructurados
-  jsonls = {
-    cmd = { "vscode-json-language-server", "--stdio" },
-    filetypes = { "json", "jsonc" },
-  },
-
-  -- Python (Corregido sin el argumento --mode)
-  pyright = {
-    cmd = { "pyright-langserver", "--stdio" },
-    filetypes = { "python" },
-    settings = {
-      python = {
-        analysis = {
-          autoSearchPaths = true,
-          useLibraryCodeForTypes = true,
-          diagnosticMode = "openFilesOnly",
-          typeCheckingMode = "basic",
-        },
+  settings = {
+    Lua = {
+      runtime = { version = "LuaJIT" },
+      diagnostics = { globals = { "vim" } },
+      workspace = {
+        checkThirdParty = false,
+        library = vim.api.nvim_get_runtime_file("", true),
       },
+      telemetry = { enable = false },
     },
   },
-
-  -- Lua (Entorno Neovim)
-  lua_ls = {
-    cmd = { "lua-language-server" },
-    filetypes = { "lua" },
-    settings = {
-      Lua = {
-        runtime = { version = "LuaJIT" },
-        diagnostics = { globals = { "vim" } },
-        workspace = {
-          checkThirdParty = false,
-          library = vim.api.nvim_get_runtime_file("", true),
-        },
-        telemetry = { enable = false },
-      },
-    },
-  },
-}
+})
 
 -- ============================================================================
--- 5. ORQUESTACIÓN NATIVA Y ARRANQUE (AUTOCMDS)
+-- ENABLE
 -- ============================================================================
-
-local lsp_group = vim.api.nvim_create_augroup("NativeLspConfig", { clear = true })
-
-for server_name, config in pairs(servers) do
-  vim.api.nvim_create_autocmd("FileType", {
-    group = lsp_group,
-    pattern = config.filetypes,
-    callback = function(ev)
-      -- Combinar la config base con las capacidades de autocompletado
-      local final_config = vim.tbl_deep_extend("force", {
-        name = server_name,
-        capabilities = capabilities,
-        root_dir = vim.fs.root(ev.buf, {
-          ".git",
-          "package.json",
-          "tsconfig.json",
-          "jsconfig.json",
-          "pyproject.toml",
-          "setup.py",
-          "Cargo.toml",
-        }) or vim.fn.getcwd(),
-      }, config)
-
-      -- Arrancar o adjuntar el cliente LSP de manera nativa
-      vim.lsp.start(final_config, { bufnr = ev.buf })
-    end,
-  })
-end
+vim.lsp.enable({
+  "vtsls",
+  "astro",
+  "svelte",
+  "volar",
+  "html",
+  "cssls",
+  "tailwindcss",
+  "emmet_language_server",
+  "jsonls",
+"basedpyright", -- <-- CAMBIADO
+  "ruff",
+  "lua_ls",
+})
