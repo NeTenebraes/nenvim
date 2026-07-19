@@ -1,29 +1,35 @@
 local map = vim.keymap.set
+local Snacks = require("snacks")
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
-local function nmap(lhs, rhs, desc)
-  map("n", lhs, rhs, { silent = true, desc = desc })
+local function nmap(lhs, rhs, desc, bufnr)
+	local opts = { silent = true, desc = desc }
+	if bufnr then
+		opts.buffer = bufnr
+	end
+	map("n", lhs, rhs, opts)
 end
 
 local function vmap(lhs, rhs, desc)
-  map("v", lhs, rhs, { silent = true, desc = desc })
+	map("v", lhs, rhs, { silent = true, desc = desc })
 end
 
 local function imap(lhs, rhs, desc)
-  map("i", lhs, rhs, { silent = true, desc = desc })
+	map("i", lhs, rhs, { silent = true, desc = desc })
 end
 
 -- =========================================================
 -- EDITION & TEXT MANIPULATION
 -- =========================================================
-
 -- --- PORTAPAPELES (YANK / PASTE) -------------------------
 nmap("<leader>y", '"+y', "Yank: Clipboard")
 vmap("<leader>y", '"+y', "Yank: Clipboard")
 nmap("<leader>Y", '"+Y', "Yank: Line to Clipboard")
-nmap("<leader>ya", function() vim.cmd('normal! ggVG"+y') end, "Yank: All")
+nmap("<leader>ya", function()
+	vim.cmd('normal! ggVG"+y')
+end, "Yank: All")
 
 nmap("<leader>p", '"+p', "Paste: Clipboard")
 vmap("<leader>p", '"+p', "Paste: Clipboard")
@@ -38,26 +44,50 @@ vmap("<", "<gv", "Unindent and Keep Selection")
 vmap(">", ">gv", "Indent and Keep Selection")
 
 -- --- MINI.MOVE (Desplazamiento de texto) -----------------
-nmap("<C-S-k>", function() require("mini.move").move_line("up") end, "Mini Move: Up")
-vmap("<C-S-k>", function() require("mini.move").move_selection("up") end, "Mini Move: Up")
+nmap("<C-S-k>", function()
+	require("mini.move").move_line("up")
+end, "Mini Move: Up")
+vmap("<C-S-k>", function()
+	require("mini.move").move_selection("up")
+end, "Mini Move: Up")
 
-nmap("<C-S-j>", function() require("mini.move").move_line("down") end, "Mini Move: Down")
-vmap("<C-S-j>", function() require("mini.move").move_selection("down") end, "Mini Move: Down")
+nmap("<C-S-j>", function()
+	require("mini.move").move_line("down")
+end, "Mini Move: Down")
+vmap("<C-S-j>", function()
+	require("mini.move").move_selection("down")
+end, "Mini Move: Down")
 
 -- --- MINI.SURROUND (Envolturas y delimitadores) ----------
-nmap("Sa", function() require("mini.surround").add() end, "Mini Surround: Add")
-nmap("Sd", function() require("mini.surround").delete() end, "Mini Surround: Delete")
-nmap("Sr", function() require("mini.surround").replace() end, "Mini Surround: Replace")
-nmap("Sf", function() require("mini.surround").find() end, "Mini Surround: Find Forward")
-nmap("SF", function() require("mini.surround").find_left() end, "Mini Surround: Find Backward")
-nmap("Sh", function() require("mini.surround").highlight() end, "Mini Surround: Highlight")
-nmap("Sn", function() require("mini.surround").update_n_lines() end, "Mini Surround: Update N Lines")
+nmap("Sa", function()
+	require("mini.surround").add()
+end, "Mini Surround: Add")
+nmap("Sd", function()
+	require("mini.surround").delete()
+end, "Mini Surround: Delete")
+nmap("Sr", function()
+	require("mini.surround").replace()
+end, "Mini Surround: Replace")
+nmap("Sf", function()
+	require("mini.surround").find()
+end, "Mini Surround: Find Forward")
+nmap("SF", function()
+	require("mini.surround").find_left()
+end, "Mini Surround: Find Backward")
+nmap("Sh", function()
+	require("mini.surround").highlight()
+end, "Mini Surround: Highlight")
+nmap("Sn", function()
+	require("mini.surround").update_n_lines()
+end, "Mini Surround: Update N Lines")
 
 -- --- MINI.COMMENT (Comentarios rápidos) ------------------
-nmap("gcc", function() require("mini.comment").toggle_linewise() end, "Mini Comment: Toggle Line")
-vmap("gc", function() require("mini.comment").toggle_linewise(vim.fn.visualmode()) end, "Mini Comment: Toggle Selection")
-
-nmap("<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Replace Word Globally")
+nmap("gcc", function()
+	require("mini.comment").toggle_linewise()
+end, "Mini Comment: Toggle Line")
+vmap("gc", function()
+	require("mini.comment").toggle_linewise(vim.fn.visualmode())
+end, "Mini Comment: Toggle Selection")
 
 -- =========================================================
 -- GESTIÓN DE BUFFERS / ARCHIVOS
@@ -69,87 +99,110 @@ nmap("<leader>ve", "<cmd>edit $MYVIMRC<CR>", "Vim: Edit init.lua")
 nmap("<leader>bn", "<cmd>bnext<CR>", "Buffer: Next")
 nmap("<leader>bp", "<cmd>bprevious<CR>", "Buffer: Previous")
 
--- Borrado seguro (mini.bufremove)
+-- Cerrar buffer (mini.bufremove)
 nmap("<leader>bd", function()
-  local ok, bufremove = pcall(require, "mini.bufremove")
-  if ok then bufremove.delete(0, false) else vim.cmd("bdelete") end
+	local ok, bufremove = pcall(require, "mini.bufremove")
+	if ok then
+		bufremove.delete(0, false)
+	else
+		vim.cmd("bdelete")
+	end
 end, "Buffer: Delete Safely")
 
 -- Input interactivo para renombrar el buffer actual
 nmap("<leader>br", function()
-  vim.ui.input({ prompt = "Nuevo nombre del Buffer: " }, function(input)
-    if input and input ~= "" then vim.cmd("file " .. input) end
-  end)
+	vim.ui.input({ prompt = "New name: " }, function(input)
+		if input and input ~= "" then
+			vim.cmd("file " .. input)
+		end
+	end)
 end, "Buffer: Rename / Set Name")
 
 -- Scratchpad flotante (Bloc de notas temporal de Snacks)
-nmap("<leader>bs", function() Snacks.scratch() end, "Buffer: Scratchpad Temporal")
+nmap("<leader>bs", function()
+	Snacks.scratch()
+end, "Buffer: Scratchpad Temporal")
 
 -- =========================================================
 -- NAV, SCROLL & QUICK ACTIONS
 -- =========================================================
-
 -- NAVEGACIÓN Y BUSCADORES (Snacks)
-nmap("<leader>e", function() Snacks.explorer() end, "Explorer: Toggle")
-nmap("<leader>ff", function() Snacks.picker.files() end, "Find: Files")
-nmap("<leader>fg", function() Snacks.picker.grep() end, "Find: Grep")
-nmap("<leader>fb", function() Snacks.picker.buffers() end, "Find: Buffers")
-
--- Tu función nmap adaptada para que opcionalmente acepte un buffer
-local function nmap(lhs, rhs, desc, bufnr)
-  local opts = { silent = true, desc = desc }
-  if bufnr then
-    opts.buffer = bufnr
-  end
-  map("n", lhs, rhs, opts)
-end
+nmap("<leader>e", function()
+	Snacks.explorer()
+end, "Explorer: Toggle")
+nmap("<leader>ff", function()
+	Snacks.picker.files()
+end, "Find: Files")
+nmap("<leader>fg", function()
+	Snacks.picker.grep()
+end, "Find: Grep")
+nmap("<leader>fb", function()
+	Snacks.picker.buffers()
+end, "Find: Buffers")
 
 -- Notificaciones
-nmap("<leader>un", function() 
-  Snacks.notifier.show_history() 
+nmap("<leader>un", function()
+	Snacks.notifier.show_history()
 end, "Notification: History")
 
 -- Autocomando para abrir la notificación en una ventana flotante con 'uu' (SÓLO LECTURA)
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "snacks_notif_history",
-  callback = function(event)
-    nmap("uu", function()
-      local line = vim.api.nvim_get_current_line()
-      if line == "" then return end
+	pattern = "snacks_notif_history",
+	callback = function(event)
+		nmap("uu", function()
+			local line = vim.api.nvim_get_current_line()
+			if line == "" then
+				return
+			end
 
-      -- Limpiamos timestamps y niveles de log (ej: "18:00:22 [INFO] Mensaje")
-      local clean_line = line:gsub("^%d%d:%d%d:%d%d%s+%[%w+%]%s+", "")
+			-- Limpiamos timestamps y niveles de log (ej: "18:00:22 [INFO] Mensaje")
+			local clean_line = line:gsub("^%d%d:%d%d:%d%d%s+%[%w+%]%s+", "")
 
-      Snacks.win({
-        text = clean_line,
-        width = 0.7,
-        height = 0.3,
-        border = "rounded",
-        backdrop = 60,
-        zindex = 150, -- Por encima del historial de Snacks (100)
-        title = " Notification details ",
-        title_pos = "center",
-        wo = {
-          wrap = true,
-          conceallevel = 2,
-        },
-        bo = {
-          filetype = "markdown",
-          modifiable = false,
-          buftype = "nofile",
-          readonly = true,
-        },
-        keys = {
-          q = "close", -- 'q' cierra la ventana flotante
-        }
-      })
-    end, "Ver detalle de notificación", event.buf)
-  end,
+			Snacks.win({
+				text = clean_line,
+				width = 0.7,
+				height = 0.3,
+				border = "rounded",
+				backdrop = 60,
+				zindex = 150, -- Por encima del historial de Snacks (100)
+				title = " Notification details ",
+				title_pos = "center",
+				wo = {
+					wrap = true,
+					conceallevel = 2,
+				},
+				bo = {
+					filetype = "markdown",
+					modifiable = false,
+					buftype = "nofile",
+					readonly = true,
+				},
+				keys = {
+					q = "close", -- 'q' cierra la ventana flotante
+				},
+			})
+		end, "Ver detalle de notificación", event.buf)
+	end,
 })
 
 -- --- CONTROL DE BÚSQUEDA Y ESCAPE ------------------------
+-- --- CONTROL DE BÚSQUEDA Y ESCAPE ------------------------
 imap("<C-c>", "<Esc>", "Insert: Escape")
 nmap("<C-c>", "<cmd>nohlsearch<CR>", "Clear Search Highlight")
+
+-- 1. Cancelar selección visual estándar y salir de Multi-Cursor
+vmap("<C-c>", "<Esc>", "Visual: Escape / Cancel Multi-Cursor")
+-- 2. Cerrar ventanas flotantes de ayuda, diagnósticos o Snacks Pickers con <C-c>
+nmap("<C-c>", function()
+	-- Cierra el resaltado de búsqueda primero
+	vim.cmd("nohlsearch")
+
+	-- Si hay una ventana flotante abierta (que no sea el editor principal), la cierra
+	local win = vim.api.nvim_get_current_win()
+	if vim.api.nvim_win_get_config(win).relative ~= "" then
+		vim.api.nvim_win_close(win, false)
+	end
+end, "Clear Search and Close Float Window")
 
 -- --- EDICIÓN ÁGIL / SCROLL CENTRADO ----------------------
 nmap("<C-f>", "<C-f>", "Scroll: Page Down")
@@ -159,69 +212,83 @@ nmap("N", "Nzzzv", "Previous Search Result Centered")
 
 -- NAVEGACIÓN RÁPIDA (Flash.nvim)
 nmap("s", function()
-  local ok, flash = pcall(require, "flash")
-  if ok then flash.jump() end
+	local ok, flash = pcall(require, "flash")
+	if ok then
+		flash.jump()
+	end
 end, "Flash: Jump")
 
 vmap("s", function()
-  local ok, flash = pcall(require, "flash")
-  if ok then flash.jump() end
+	local ok, flash = pcall(require, "flash")
+	if ok then
+		flash.jump()
+	end
 end, "Flash: Jump")
 
 -- En modo normal (nmap): Salta usando Treesitter y limpia la selección al instante
 nmap("S", function()
-  local ok, flash = pcall(require, "flash")
-  if ok then
-    flash.treesitter()
-    -- Espera un instante a que termine el salto y sale del modo visual automáticamente
-    vim.schedule(function()
-      local mode = vim.fn.mode()
-      if mode == "v" or mode == "V" then
-        vim.cmd("normal! \27") -- Envía un caracter <Esc> para quitar la selección
-      end
-    end)
-  end
+	local ok, flash = pcall(require, "flash")
+	if ok then
+		flash.treesitter()
+		-- Espera un instante a que termine el salto y sale del modo visual automáticamente
+		vim.schedule(function()
+			local mode = vim.fn.mode()
+			if mode == "v" or mode == "V" then
+				vim.cmd("normal! \27") -- Envía un caracter <Esc> para quitar la selección
+			end
+		end)
+	end
 end, "Flash: Treesitter (Jump only)")
 
 -- En modo visual (vmap): Mantiene la selección activa para operar sobre ella
 vmap("S", function()
-  local ok, flash = pcall(require, "flash")
-  if ok then
-    flash.treesitter()
-  end
+	local ok, flash = pcall(require, "flash")
+	if ok then
+		flash.treesitter()
+	end
 end, "Flash: Treesitter (Select)")
 
 -- --- SISTEMA Y CÓDIGO ------------------------------------
 nmap("<leader>X", "<cmd>!chmod +x %<CR>", "Make File Executable")
 
 nmap("<leader>re", function()
-  if vim.bo.modified then
-    vim.notify("Buffer has unsaved changes. Write or discard first.", vim.log.levels.WARN)
-    return
-  end
-  vim.cmd("restart")
+	if vim.bo.modified then
+		vim.notify("Buffer has unsaved changes. Write or discard first.", vim.log.levels.WARN)
+		return
+	end
+	vim.cmd("restart")
 end, "Restart Config")
 
 nmap("<leader>z", "za", "Fold: Toggle under cursor")
 
 -- --- INTEGRACIONES CON SNACKS ---------------------------
-nmap("<leader>tt", function() Snacks.terminal() end, "Terminal: Toggle")
-nmap("<leader>ud", function() Snacks.toggle.dim():toggle() end, "Focus: Toggle Dim")
-nmap("<leader>uz", function() Snacks.toggle.zen():toggle() end, "Zen: Toggle Mode")
+nmap("<leader>tt", function()
+	Snacks.terminal()
+end, "Terminal: Toggle")
+nmap("<leader>ud", function()
+	Snacks.toggle.dim():toggle()
+end, "Focus: Toggle Dim")
+nmap("<leader>uz", function()
+	Snacks.toggle.zen():toggle()
+end, "Zen: Toggle Mode")
 
 -- --- SERVIDORES LOCALES (Live Server) --------------------
-local vite = require("plugins.live-server") 
+local vite = require("plugins.live-server")
 nmap("<leader>lt", vite.toggle_vite_server, "Vite: Toggle Server (Multi-project)")
 
 -- --- HISTORIAL DE CAMBIOS (Undotree) ---------------------
 nmap("<leader>u", function()
-  vim.cmd.packadd("nvim.undotree")
-  local ok, undotree = pcall(require, "undotree")
-  if ok then undotree.open() end
+	vim.cmd.packadd("nvim.undotree")
+	local ok, undotree = pcall(require, "undotree")
+	if ok then
+		undotree.open()
+	end
 end, "Toggle Builtin Undotree")
 
 -- GIT (Lazygit & Gitsigns)
-nmap("<leader>gg", function() Snacks.lazygit() end, "Git: Lazygit")
+nmap("<leader>gg", function()
+	Snacks.lazygit()
+end, "Git: Lazygit")
 nmap("<leader>gb", "<cmd>Gitsigns blame_line<CR>", "Git: Blame Line")
 
 -- =========================================================
@@ -250,79 +317,89 @@ nmap("<M-Right>", "<cmd>vertical resize +2<CR>", "Window: Resize Right")
 
 -- --- NAVEGACIÓN NATIVA CON FLECHAS -----------------------
 imap("<Down>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok and cmp.visible() then
-    cmp.select_next_item()
-  else
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Down>", true, false, true), "n", true)
-  end
+	local ok, cmp = pcall(require, "cmp")
+	if ok and cmp.visible() then
+		cmp.select_next_item()
+	else
+		vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Down>", true, false, true), "n", true)
+	end
 end, "CMP: Next Item with Arrow")
 
 imap("<Up>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok and cmp.visible() then
-    cmp.select_prev_item()
-  else
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Up>", true, false, true), "n", true)
-  end
+	local ok, cmp = pcall(require, "cmp")
+	if ok and cmp.visible() then
+		cmp.select_prev_item()
+	else
+		vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Up>", true, false, true), "n", true)
+	end
 end, "CMP: Prev Item with Arrow")
 
 -- --- NAVEGACIÓN ESTÁNDAR (Ctrl+n / Ctrl+p) ----------------
 imap("<C-n>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok and cmp.visible() then cmp.select_next_item() end
+	local ok, cmp = pcall(require, "cmp")
+	if ok and cmp.visible() then
+		cmp.select_next_item()
+	end
 end, "CMP: Select Next")
 
 imap("<C-p>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok and cmp.visible() then cmp.select_prev_item() end
+	local ok, cmp = pcall(require, "cmp")
+	if ok and cmp.visible() then
+		cmp.select_prev_item()
+	end
 end, "CMP: Select Previous")
 
 -- --- DOCUMENTACIÓN (Scroll) ------------------------------
 imap("<C-f>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok then cmp.scroll_docs(4) end
+	local ok, cmp = pcall(require, "cmp")
+	if ok then
+		cmp.scroll_docs(4)
+	end
 end, "CMP: Scroll Docs Down")
 
 imap("<C-b>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok then cmp.scroll_docs(-4) end
+	local ok, cmp = pcall(require, "cmp")
+	if ok then
+		cmp.scroll_docs(-4)
+	end
 end, "CMP: Scroll Docs Up")
 
 -- --- ACCIONES Y CONFIRMACIÓN -----------------------------
 imap("<C-Space>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok then cmp.complete() end
+	local ok, cmp = pcall(require, "cmp")
+	if ok then
+		cmp.complete()
+	end
 end, "CMP: Trigger Completion")
 
 imap("<CR>", function()
-  local ok, cmp = pcall(require, "cmp")
-  if ok and cmp.visible() then
-    cmp.confirm({ select = false })
-  else
-    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<CR>", true, false, true), "n", true)
-  end
+	local ok, cmp = pcall(require, "cmp")
+	if ok and cmp.visible() then
+		cmp.confirm({ select = false })
+	else
+		vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<CR>", true, false, true), "n", true)
+	end
 end, "CMP: Smart Confirm Entry")
 
 -- =========================================================
 -- FORMATO / LSP
 -- =========================================================
 nmap("<leader>f", function()
-  local ok, conform = pcall(require, "conform")
-  if ok then
-    conform.format({ async = true, lsp_fallback = true })
-  else
-    vim.lsp.buf.format({ async = true })
-  end
+	local ok, conform = pcall(require, "conform")
+	if ok then
+		conform.format({ async = true, lsp_fallback = true })
+	else
+		vim.lsp.buf.format({ async = true })
+	end
 end, "Format: File")
 
 nmap("gK", function()
-  local ok, noice = pcall(require, "noice")
-  if ok then
-    require("noice.lsp").hover()
-  else
-    vim.lsp.buf.hover()
-  end
+	local ok, noice = pcall(require, "noice")
+	if ok then
+		noice.lsp.hover()
+	else
+		vim.lsp.buf.hover()
+	end
 end, "LSP Hover Docs")
 
 nmap("gd", vim.lsp.buf.definition, "LSP: Definition")
@@ -331,45 +408,48 @@ nmap("GD", vim.diagnostic.open_float, "LSP: Show diagnostic float")
 nmap("GR", vim.diagnostic.setloclist, "LSP: Open Loclist")
 -- Mapea la K para abrir el hover nativo redondeado
 
-nmap("gn", vim.diagnostic.goto_next, "LSP: Next diagnostic")
-nmap("gN", vim.diagnostic.goto_prev, "LSP: Prev diagnostic")
+nmap("gn", function()
+	vim.diagnostic.jump({ count = 1 })
+end, "LSP: Next diagnostic")
+nmap("gN", function()
+	vim.diagnostic.jump({ count = -1 })
+end, "LSP: Prev diagnostic")
 
 nmap("<leader>rn", vim.lsp.buf.rename, "LSP: Rename")
 nmap("<leader>ca", vim.lsp.buf.code_action, "LSP: Code Action")
 vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "LSP: Code Action" })
 
 nmap("GI", function()
-  local items = vim.inspect_pos()
-  local lines = {}
+	local items = vim.inspect_pos()
+	local lines = {}
 
-  if #items.treesitter > 0 then
-    table.insert(lines, "Treesitter:")
-    for _, capture in ipairs(items.treesitter) do
-      table.insert(lines, string.format("  - @%s -> %s", capture.capture, capture.hl_group))
-    end
-  end
+	if #items.treesitter > 0 then
+		table.insert(lines, "Treesitter:")
+		for _, capture in ipairs(items.treesitter) do
+			table.insert(lines, string.format("  - @%s -> %s", capture.capture, capture.hl_group))
+		end
+	end
 
-  if #items.syntax > 0 then
-    if #lines > 0 then
-      table.insert(lines, "")
-    end
-    table.insert(lines, "Syntax:")
-    for _, syn in ipairs(items.syntax) do
-      table.insert(lines, string.format("  - %s -> %s", syn.hl_group, syn.hl_group))
-    end
-  end
+	if #items.syntax > 0 then
+		if #lines > 0 then
+			table.insert(lines, "")
+		end
+		table.insert(lines, "Syntax:")
+		for _, syn in ipairs(items.syntax) do
+			table.insert(lines, string.format("  - %s -> %s", syn.hl_group, syn.hl_group))
+		end
+	end
 
-  if #lines == 0 then
-    lines = { "No highlight information found here." }
-  end
+	if #lines == 0 then
+		lines = { "No highlight information found here." }
+	end
 
-  vim.lsp.util.open_floating_preview(lines, "markdown", {
-    border = "rounded",
-    focusable = true,
-    focus = true,
-  })
+	vim.lsp.util.open_floating_preview(lines, "markdown", {
+		border = "rounded",
+		focusable = true,
+		focus = true,
+	})
 end, "Inspect highlights in floating window")
-
 
 -- =========================================================
 -- DEBUGGING (nvim-dap / dap-ui)
@@ -378,19 +458,34 @@ local ok_dap, dap = pcall(require, "dap")
 local ok_dapui, dapui = pcall(require, "dapui")
 
 if ok_dap then
-  nmap("<leader>db", function() dap.toggle_breakpoint() end, "DAP: Toggle Breakpoint")
-  nmap("<leader>dc", function() dap.continue() end, "DAP: Start/Continue Session")
-  nmap("<leader>dx", function() dap.terminate() end, "DAP: Terminate Session")
-  nmap("<leader>do", function() dap.step_over() end, "DAP: Step Over")
-  nmap("<leader>di", function() dap.step_into() end, "DAP: Step Into")
-  nmap("<leader>du", function() dap.step_out() end, "DAP: Step Out")
-  nmap("<leader>dr", function() dap.repl.toggle() end, "DAP: Toggle REPL")
+	nmap("<leader>db", function()
+		dap.toggle_breakpoint()
+	end, "DAP: Toggle Breakpoint")
+	nmap("<leader>dc", function()
+		dap.continue()
+	end, "DAP: Start/Continue Session")
+	nmap("<leader>dx", function()
+		dap.terminate()
+	end, "DAP: Terminate Session")
+	nmap("<leader>do", function()
+		dap.step_over()
+	end, "DAP: Step Over")
+	nmap("<leader>di", function()
+		dap.step_into()
+	end, "DAP: Step Into")
+	nmap("<leader>du", function()
+		dap.step_out()
+	end, "DAP: Step Out")
+	nmap("<leader>dr", function()
+		dap.repl.toggle()
+	end, "DAP: Toggle REPL")
 end
 
 if ok_dapui then
-  nmap("<leader>ui", function() dapui.toggle() end, "DAP: Toggle UI panel")
+	nmap("<leader>ui", function()
+		dapui.toggle()
+	end, "DAP: Toggle UI panel")
 end
-
 
 -- =========================================================
 --  NAVEGACIÓN QUIRÚRGICA (Movimientos Esenciales)
