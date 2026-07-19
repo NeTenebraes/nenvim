@@ -31,6 +31,7 @@ M.modules = {
 	"plugins.UI.smear_cursor",
 
 	-- Entorno LSP / Configs de Desarrollo (En lua/plugins/lsp/)
+	"plugins.lsp.lazydev",
 	"plugins.lsp.init",
 	"plugins.lsp.formatter",
 	"plugins.lsp.linter",
