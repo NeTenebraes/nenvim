@@ -7,7 +7,7 @@ end
 -- CONFIGURACIÓN DE PERFILES
 -- Opciones disponibles: "default", "snappy", "smooth", "fire"
 -- =========================================================
-local ACTIVE_PROFILE = "fire"
+local ACTIVE_PROFILE = "hyper_visor"
 
 local profiles = {
 	default = {
@@ -45,21 +45,43 @@ local profiles = {
 		gamma = 1,
 
 		-- ESTO EVITA QUE ESTORBE AL TEXTO:
-		never_draw_over_target = true, -- Fuerza a que el texto donde cae tu cursor SIEMPRE se lea
-		hide_target_hack = true, -- Evita que el cursor real parpadee o se duplique
+		never_draw_over_target = true,
+		hide_target_hack = true,
 
-		-- EL ALMA DEL FUEGO (Conserva el comportamiento de llama real):
-		particle_spread = 1.2, -- Dispersión amplia para mantener la forma de llamarada
-		particles_per_second = 350, -- Bastantes partículas para que la llama se vea densa
-		particles_per_length = 35, -- Buena densidad al saltar de línea
-		particle_max_lifetime = 300, -- Reducido a 300ms (antes 800): Se desvanece rápido antes de estorbar
+		particle_spread = 1.2,
+		particles_per_second = 350,
+		particles_per_length = 35,
+		particle_max_lifetime = 300,
 
-		-- FÍSICAS DE ASCENSO (El fuego sube):
-		particle_max_initial_velocity = 15, -- Fuerza de salida para que las chispas vuelen
+		particle_max_initial_velocity = 15,
 		particle_velocity_from_cursor = 0.5,
-		particle_damping = 0.15, -- Resistencia baja para que las chispas fluyan suaves
-		particle_gravity = 40, -- Gravedad positiva (fuego sube). Si quieres que caiga usa -40.
-		min_distance_emit_particles = 0, -- Genera fuego incluso con movimientos mínimos
+		particle_damping = 0.15,
+		particle_gravity = 40,
+		min_distance_emit_particles = 0,
+	},
+
+	hyper_visor = {
+		-- Color y Visibilidad
+		gamma = 3,
+
+		-- AJUSTES DE FÍSICA PARA VISIBILIDAD
+		particles_enabled = true,
+		particles_per_second = 400,
+		particle_max_lifetime = 600,
+		particle_max_initial_velocity = 15,
+		particle_spread = 1.5,
+		particle_gravity = -20,
+		particle_damping = 0.6,
+		-- Prioridad absoluta para legibilidad
+		never_draw_over_target = true,
+		hide_target_hack = true,
+
+		-- VIBRACIÓN SUAVE
+		stiffness = 0.5,
+		trailing_stiffness = 0.3,
+		damping = 0.6,
+
+		time_interval = 10,
 	},
 }
 
