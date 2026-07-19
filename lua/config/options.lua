@@ -66,36 +66,35 @@ opt.foldcolumn = "0" -- No muestra columna extra para folds.
 opt.foldtext = "" -- Usa la línea original como texto del fold.
 
 vim.api.nvim_create_autocmd("TextYankPost", {
-  desc = "Resalta el texto copiado",
-  callback = function()
-    vim.highlight.on_yank({ higroup = "IncSearch", timeout = 120 })
-  end,
+	desc = "Resalta el texto copiado",
+	callback = function()
+		vim.highlight.on_yank({ higroup = "IncSearch", timeout = 120 })
+	end,
 })
-
 
 -- =========================================================
 -- CARGA DEL TEMA PERSONALIZADO (Criterio de arquitectura limpia)
 -- =========================================================
-local status, theme = pcall(require, "theme01")
+local status, theme = pcall(require, "themes.dark_cyan")
 if status then
-  theme.setup()
+	theme.setup()
 else
-  vim.notify("Error: No se pudo cargar el theme.lua", vim.log.levels.ERROR)
+	vim.notify("Error: No se pudo cargar el theme.lua", vim.log.levels.ERROR)
 end
 
 -- =========================================================
 -- RESTAURAR ÚLTIMA POSICIÓN DEL CURSOR AL INICIAR
 -- =========================================================
 vim.api.nvim_create_autocmd("BufReadPost", {
-  callback = function()
-    local mark = vim.api.nvim_buf_get_mark(0, '"')
-    local lcount = vim.api.nvim_buf_line_count(0)
-    if mark[1] > 0 and mark[1] <= lcount then
-      pcall(vim.api.nvim_win_set_cursor, 0, mark)
-    end
-  end,
+	callback = function()
+		local mark = vim.api.nvim_buf_get_mark(0, '"')
+		local lcount = vim.api.nvim_buf_line_count(0)
+		if mark[1] > 0 and mark[1] <= lcount then
+			pcall(vim.api.nvim_win_set_cursor, 0, mark)
+		end
+	end,
 })
 
 vim.keymap.set("n", "<leader>I", function()
-  vim.cmd("Inspect")
+	vim.cmd("Inspect")
 end, { desc = "Inspect nativo" })
