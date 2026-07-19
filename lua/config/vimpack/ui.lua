@@ -8,10 +8,10 @@ local UI = {}
 -- ==========================================================================
 UI.messages = {
 	title = " Pack Sync ",
-	preparing = "⚙️ Preparing subprocesses...",
+	preparing = "Preparing subprocesses...",
 	progress_format = "Progress: [%d/%d] %d%%",
-	errors_detected = "❌ Errors detected during synchronization:",
-	sync_success = "✨ PackUpdate: Completed without errors.",
+	errors_detected = "Errors detected during synchronization:",
+	sync_success = "PackUpdate: Completed without errors.",
 }
 
 function UI.run_concurrent_pool(tasks, max_concurrency, on_complete)

@@ -24,7 +24,7 @@ end
 -- =========================================================
 -- EDITION & TEXT MANIPULATION
 -- =========================================================
--- --- PORTAPAPELES (YANK / PASTE) -------------------------
+---------------------- (YANK / PASTE) ------------------
 nmap("<leader>y", '"+y', "Yank: Clipboard")
 vmap("<leader>y", '"+y', "Yank: Clipboard")
 nmap("<leader>Y", '"+Y', "Yank: Line to Clipboard")
@@ -37,14 +37,13 @@ vmap("<leader>p", '"+p', "Paste: Clipboard")
 nmap("<leader>P", '"+P', "Paste: Clipboard Before")
 vmap("p", '"_dP', "Paste Over Selection (No overwrite register)")
 
--- --- ACCIONES DE LÍNEA Y SANGRÍA -------------------------
 nmap("<leader>dd", "yyp", "Duplicate: Line Below")
 vmap("<leader>dd", "y'>p", "Duplicate: Selection")
 
 vmap("<", "<gv", "Unindent and Keep Selection")
 vmap(">", ">gv", "Indent and Keep Selection")
 
--- --- MINI.MOVE (Desplazamiento de texto) -----------------
+----------------- MINI.MOVE -----------------
 nmap("<C-S-k>", function()
 	require("mini.move").move_line("up")
 end, "Mini Move: Up")

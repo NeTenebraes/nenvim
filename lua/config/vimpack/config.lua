@@ -1,5 +1,5 @@
 -- ==========================================================================
--- vimpack: config.lua (Strict & Isolated Plugin Configuration Loader)
+-- vimpack: config.lua | Load configs files
 -- ==========================================================================
 local M = {}
 
@@ -7,11 +7,26 @@ local M = {}
 -- USER-CONFIGURABLE MESSAGES (Localization)
 -- ==========================================================================
 M.messages = {
-	load_error = "❌ Error loading [%s]: %s",
+	load_error = "Error loading [%s]: %s",
 }
 
+-- ==========================================================================
+-- LOAD PLUGINS CONFIG IN LOAD ORDER!
+-- ==========================================================================
+
 M.modules = {
-	-- Core Utilities (Directos en lua/plugins/)
+	-- UI (lua/plugins/UI/)
+	"plugins.UI.lualine",
+	"plugins.UI.devicons",
+	"plugins.UI.smear_cursor",
+	"plugins.UI.bufferline",
+	"plugins.UI.gitsigns",
+	"plugins.UI.noice",
+	"plugins.UI.rainbow",
+	"plugins.UI.render-markdown",
+	"plugins.UI.ccc",
+
+	-- Core Utilities (lua/plugins/)
 	"plugins.treesitter",
 	"plugins.mini",
 	"plugins.snacks",
@@ -19,23 +34,12 @@ M.modules = {
 	"plugins.live-server",
 	"plugins.multi_cursor",
 
-	-- Interfaz Gráfica (Físicamente en lua/plugins/UI/)
-	"plugins.UI.bufferline",
-	"plugins.UI.ccc",
-	"plugins.UI.devicons",
-	"plugins.UI.gitsigns",
-	"plugins.UI.lualine",
-	"plugins.UI.noice",
-	"plugins.UI.rainbow",
-	"plugins.UI.render-markdown",
-	"plugins.UI.smear_cursor",
-
 	-- Entorno LSP / Configs de Desarrollo (En lua/plugins/lsp/)
 	"plugins.lsp.lazydev",
 	"plugins.lsp.init",
-	"plugins.lsp.formatter",
 	"plugins.lsp.linter",
 	"plugins.lsp.cmp.init",
+	"plugins.lsp.formatter",
 	"plugins.lsp.dap.init",
 }
 

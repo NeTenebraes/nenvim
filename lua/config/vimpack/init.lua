@@ -11,15 +11,15 @@ local M = {}
 -- USER-CONFIGURABLE MESSAGES (Localization)
 -- ==========================================================================
 M.messages = {
-	bootstrap_cloning = "📥 Cloning initial bootstrap: ",
-	install_success = "📥 Installed: ",
-	install_failed = "❌ Clone failed: ",
-	update_success = "🔄 Updated: ",
-	update_uptodate = "💤 Up to date: ",
-	update_failed = "❌ Update failed: ",
+	bootstrap_cloning = "Cloning initial bootstrap: ",
+	install_success = "Installed: ",
+	install_failed = "Clone failed: ",
+	update_success = "Updated: ",
+	update_uptodate = "Up to date: ",
+	update_failed = "Update failed: ",
 	clean_not_found = "Directory pack/plugins/start not found.",
-	clean_deleted = "🗑️ Obsolete package deleted: ",
-	clean_success = "✨ Clean! All folders match your plugins list.",
+	clean_deleted = "Obsolete package deleted: ",
+	clean_success = "Clean! All folders match your plugins list.",
 	err_unknown_clone = "Clone error",
 	err_unknown_pull = "Conflict or network error",
 }

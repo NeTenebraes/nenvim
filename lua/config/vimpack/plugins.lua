@@ -1,6 +1,6 @@
 -- ==========================================================================
--- vimpack: plugins.lua (Declaración de Repositorios)
--- ==========================================================================
+-- vimpack: plugins.lua | ADD REPO PLUGINS HERE
+-- -- ==========================================================================
 local pack_path = vim.fn.stdpath("data") .. "/site/pack/plugins"
 
 return {
@@ -44,9 +44,8 @@ return {
 		},
 		{ url = "https://github.com/stevearc/conform.nvim", dest = "start/conform.nvim" },
 		{ url = "https://github.com/mfussenegger/nvim-lint", dest = "start/nvim-lint" },
-		-- Dentro de tu tabla de plugins en config/vimpack/plugins.lua
 		{ url = "https://github.com/folke/lazydev.nvim", dest = "start/lazydev.nvim" },
-		-- Completion & Snippets Engine
+
 		{ url = "https://github.com/hrsh7th/nvim-cmp", dest = "start/nvim-cmp" },
 		{ url = "https://github.com/hrsh7th/cmp-buffer", dest = "start/cmp-buffer" },
 		{ url = "https://github.com/hrsh7th/cmp-path", dest = "start/cmp-path" },
