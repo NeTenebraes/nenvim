@@ -59,8 +59,6 @@ vmap("<C-S-j>", function()
 	require("mini.move").move_selection("down")
 end, "Mini Move: Down")
 
-
-
 -- --- MINI.COMMENT (Comentarios rápidos) ------------------
 nmap("gcc", function()
 	require("mini.comment").toggle_linewise()
