@@ -8,5 +8,5 @@
 -- =========================================================
 require("config.options") -- Load options.
 require("config.keymaps") -- Load keymaps.
-require("config.pack") -- Load plugins (Blazing fast startup).
 
+require("config.vimpack")
