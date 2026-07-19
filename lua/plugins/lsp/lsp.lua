@@ -343,20 +343,16 @@ vim.api.nvim_create_autocmd({ "BufFilePost", "BufWritePost" }, {
     local bufname = vim.api.nvim_buf_get_name(buf)
     if bufname == "" then return end
 
-    -- 1. Detectar el filetype correcto basándonos estrictamente en el nuevo nombre
     local detected_ft = vim.filetype.match({ filename = bufname })
     if detected_ft and detected_ft ~= vim.bo[buf].filetype then
       vim.bo[buf].filetype = detected_ft
     end
 
-    -- 2. Forzar el evento FileType para que el cliente LSP nativo despierte
     vim.api.nvim_exec_autocmds("FileType", { buffer = buf, modeline = false })
 
-    -- 3. Darle un pequeño respiro a Neovim para asegurar el enganche del cliente LSP
     vim.schedule(function()
       if not vim.api.nvim_buf_is_valid(buf) then return end
       
-      -- Obtener los clientes LSP activos para este buffer específico
       local clients = vim.lsp.get_clients({ bufnr = buf })
       
       for _, client in ipairs(clients) do
