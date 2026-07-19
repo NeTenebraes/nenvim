@@ -75,7 +75,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- =========================================================
 -- CARGA DEL TEMA PERSONALIZADO (Criterio de arquitectura limpia)
 -- =========================================================
-local status, theme = pcall(require, "themes.dark_cyan.theme01")
+local status, theme = pcall(require, "themes.dark_cyan")
 if status then
 	theme.setup()
 else
