@@ -4,6 +4,7 @@ if not ok then
 end
 
 lint.linters_by_ft = {
+	lua = { "luacheck" },
 	javascript = { "oxlint" },
 	typescript = { "oxlint" },
 	javascriptreact = { "oxlint" },
