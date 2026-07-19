@@ -82,9 +82,13 @@ snacks.setup({
   },
 
   -- 🔤 RESALTADO DE PALABRAS REPETIDAS
+-- 🔤 RESALTADO DE PALABRAS REPETIDAS
   words = {
     enabled = true,
-    debounce = 100,
+    debounce = 300,            -- Tiempo de espera sensato
+    notify_jump = false,
+    -- Forzamos a que solo actúe en modo Normal, nunca editando
+    modes = { "n" }, 
   },
 
   -- 📝 BLOC DE NOTAS RÁPIDAS (Scratchpads)
