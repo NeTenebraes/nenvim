@@ -18,7 +18,6 @@ M.modules = {
 	"plugins.flash",
 	"plugins.live-server",
 	"plugins.multi_cursor",
-	"plugins.Debug",
 
 	-- Interfaz Gráfica (Físicamente en lua/plugins/UI/)
 	"plugins.UI.bufferline",
