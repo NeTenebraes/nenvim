@@ -56,7 +56,7 @@ if ok_mti then
 			"shellcheck",
 			"markdownlint",
 			"stylelint",
-
+			"mdformat",
 			"bash-debug-adapter",
 			"codelldb",
 			"debugpy",
@@ -242,6 +242,12 @@ vim.lsp.config("jsonls", {
 	root_markers = { ".git", "package.json" },
 })
 
+vim.lsp.config("marksman", {
+	cmd = { "marksman", "server" },
+	filetypes = { "markdown", "markdown.mdx" },
+	root_markers = { ".git", ".marksman.toml" },
+})
+
 -- ============================================================================
 -- SERVERS (PYTHON SIN SPAM DE PROGRESO)
 -- ============================================================================
@@ -339,8 +345,9 @@ vim.lsp.enable({
 	"tailwindcss",
 	"emmet_language_server",
 	"jsonls",
-	"basedpyright", -- <-- CAMBIADO
+	"basedpyright",
 	"ruff",
+	"marksman",
 	"lua_ls",
 })
 
