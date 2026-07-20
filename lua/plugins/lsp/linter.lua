@@ -11,6 +11,7 @@ lint.linters_by_ft = {
 	typescriptreact = { "oxlint" },
 	css = { "stylelint" },
 	scss = { "stylelint" },
+	markdown = { "markdownlint" },
 }
 
 local group = vim.api.nvim_create_augroup("NvimLintConfig", { clear = true })
