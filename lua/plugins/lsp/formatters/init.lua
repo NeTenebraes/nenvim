@@ -46,8 +46,3 @@ conform.setup({
         lsp_format = "fallback",
     },
 })
-
--- Mapeo global para formatear manualmente
-vim.keymap.set("n", "<leader>f", function()
-    conform.format({ async = true, lsp_format = "fallback" })
-end, { desc = "Format: File" })
