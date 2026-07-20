@@ -79,10 +79,10 @@ end
 -- UI / INTERFAZ
 -- =========================================================
 local function apply_ui(c)
-	set("Normal", { fg = c.fg0, bg = "NONE" })
-	set("NormalNC", { fg = c.fg1, bg = "NONE" })
-	set("EndOfBuffer", { fg = "NONE", bg = "NONE" })
-	set("SignColumn", { bg = "NONE" })
+	set("Normal", { fg = c.fg0, bg = c.bg0 })
+	set("NormalNC", { fg = c.fg1, bg = c.bg0 })
+	set("EndOfBuffer", { fg = "NONE", bg = c.bg0 })
+	set("SignColumn", { bg = c.bg0 })
 
 	set("LineNr", { fg = c.border, bg = "NONE" })
 	set("CursorLineNr", { fg = c.cyan1, bg = c.bg0, bold = true })
