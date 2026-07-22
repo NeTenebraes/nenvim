@@ -39,6 +39,7 @@ M.modules = {
     "plugins.lsp.init",
     "plugins.lsp.linter",
     "plugins.lsp.cmp.init",
+    "plugins.lsp.linter",
     "plugins.lsp.formatters",
     "plugins.lsp.dap.init",
 }

@@ -39,6 +39,7 @@ if ok_mti then
             "yaml-language-server",
             "typescript-language-server",
             -- Formatters & Linters
+            "markuplint",
             "oxlint",
             "prettier",
             "prettierd",
