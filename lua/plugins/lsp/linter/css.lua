@@ -3,15 +3,25 @@ local lint = require("lint")
 -- 1. Ruta del archivo fallback en el directorio temporal/state de Neovim
 local tmp_config = vim.fn.stdpath("state") .. "/stylelintrc_fallback.json"
 
--- 2. Aseguramos que el archivo en /tmp exista
+-- 2. Creamos el fallback con reglas nativas si no existe
 if vim.fn.filereadable(tmp_config) == 0 then
     local f = io.open(tmp_config, "w")
     if f then
-        f:write('{\n  "rules": {}\n}\n')
+        f:write([[
+{
+  "rules": {
+    "property-no-unknown": true,
+    "declaration-block-no-duplicate-properties": true,
+    "unit-no-unknown": true,
+    "color-no-invalid-hex": true
+  }
+}
+]])
         f:close()
     end
 end
 
+-- Asignar Stylelint a archivos CSS y SCSS
 lint.linters_by_ft.css = { "stylelint" }
 lint.linters_by_ft.scss = { "stylelint" }
 
@@ -39,18 +49,22 @@ lint.linters.stylelint.args = {
         return vim.api.nvim_buf_get_name(0)
     end,
     function()
-        -- Busca si existe algún archivo de configuración en la raíz del proyecto o carpetas superiores
-        local project_config = vim.fs.find(stylelint_configs, {
-            upward = true,
-            path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
-        })[1]
+        local buf_name = vim.api.nvim_buf_get_name(0)
+        local buf_dir = vim.fs.dirname(buf_name)
 
-        -- Si encontró una config en el proyecto, retornamos "--config" con su ruta
-        if project_config then
-            return "--config=" .. project_config
+        -- Busca si existe algún archivo de configuración en el proyecto o carpetas superiores
+        if buf_dir and buf_dir ~= "" then
+            local project_config = vim.fs.find(stylelint_configs, {
+                upward = true,
+                path = buf_dir,
+            })[1]
+
+            if project_config then
+                return "--config=" .. project_config
+            end
         end
 
-        -- Si no encontró nada en el proyecto, usamos la de /tmp
+        -- Si no encontró ninguna config en el proyecto, usamos la de fallback
         return "--config=" .. tmp_config
     end,
 }
