@@ -1,14 +1,39 @@
-nmap("K", function()
-    local ok_otter, otter = pcall(require, "otter")
-    if ok_otter then
-        -- ask_hover() es inteligente: si hay código inyectado lo usa, si no, delega automáticamente
-        otter.ask_hover()
-    else
-        local ok_noice, noice = pcall(require, "noice")
-        if ok_noice then
-            noice.lsp.hover()
-        else
-            vim.lsp.buf.hover()
-        end
-    end
-end, "LSP / Otter Hover Docs")
+local status_ok, html_css = pcall(require, "html-css")
+if not status_ok then
+    return
+end
+
+html_css.setup({
+    enable_on = {
+        "html",
+        "css",
+        "javascriptreact",
+        "typescriptreact",
+        "javascript",
+        "typescript",
+    },
+    file_extensions = {
+        "css",
+        "scss",
+        "sass",
+        "less",
+    },
+
+    -- Vacío para que escanee automáticamente únicamente los <link> del HTML activo
+    style_sheets = {},
+
+    handlers = {
+        definition = {
+            bind = "gd",
+        },
+        hover = {
+            wrap = true,
+            border = "rounded",
+            position = "cursor",
+        },
+    },
+
+    documentation = {
+        auto_show = true,
+    },
+})
