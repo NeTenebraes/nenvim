@@ -58,6 +58,7 @@ return {
         { url = "https://github.com/rafamadriz/friendly-snippets", dest = "start/friendly-snippets" },
         { url = "https://github.com/L3MON4D3/LuaSnip", dest = "start/LuaSnip" },
         { url = "https://github.com/mg979/vim-visual-multi", dest = "start/vim-visual-multi" },
+        { url = "https://github.com/Jezda1337/nvim-html-css", dest = "start/nvim-html-css" },
 
         -- Debugging (DAP)
         { url = "https://github.com/mfussenegger/nvim-dap", dest = "start/nvim-dap" },
