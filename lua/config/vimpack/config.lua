@@ -37,8 +37,9 @@ M.modules = {
     -- Entorno LSP / Configs de Desarrollo (En lua/plugins/lsp/)
     "plugins.lsp.lazydev",
     "plugins.lsp.init",
+    "plugins.lsp.otter",
     "plugins.lsp.linter",
-    "plugins.lsp.cmp.init",
+    "plugins.lsp.cmp",
     "plugins.lsp.linter",
     "plugins.lsp.formatters",
     "plugins.lsp.dap.init",

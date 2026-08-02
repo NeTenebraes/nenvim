@@ -1,3 +1,7 @@
+-- ==========================================================================
+-- Web Language Servers Configuration
+-- ==========================================================================
+
 -- JS / TS (Vtsls)
 vim.lsp.config("vtsls", {
     cmd = { "vtsls", "--stdio" },
@@ -105,7 +109,7 @@ vim.lsp.config("jsonls", {
     root_markers = { ".git", "package.json" },
 })
 
--- Habilitar todos los de este módulo
+-- Habilitar todos los servidores activos de este módulo
 vim.lsp.enable({
     "vtsls",
     "astro",
