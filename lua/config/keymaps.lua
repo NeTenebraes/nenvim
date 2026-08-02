@@ -368,44 +368,32 @@ nmap("<leader>f", function()
 end, "Format: File")
 
 nmap("K", function()
-    -- 1. Intentar hover con html-css si estamos en un contexto de clases/IDs HTML o CSS
-    local line = vim.api.nvim_get_current_line()
-    local ft = vim.bo.filetype
-    local html_fts = { "html", "css", "javascriptreact", "typescriptreact", "vue", "svelte", "php" }
+    local params = vim.lsp.util.make_position_params(0, "utf-16")
 
-    if vim.tbl_contains(html_fts, ft) then
-        -- Detectar si la línea tiene atributos de clase/id o estamos en CSS
-        local is_css_context = ft == "css" 
-            or line:match('class%s*=%s*["\'][^"\']*') 
-            or line:match('className%s*=%s*["\'][^"\']*')
-            or line:match('id%s*=%s*["\'][^"\']*')
-
-        if is_css_context then
-            local ok_hc, hc = pcall(require, "html-css")
-            if ok_hc then
-                -- Intentar el hover de html-css (vía comando o función directa del plugin)
-                local ok_exec = pcall(vim.cmd, "HTMLCSSHover")
-                if ok_exec then
-                    return
-                end
-            end
+    -- Disparamos la petición a todos los LSP activos de forma manual y controlada
+    vim.lsp.buf_request(0, "textDocument/hover", params, function(err, result, ctx, config)
+        -- Si hay error o la respuesta no tiene contenido (contents), MORIR EN SILENCIO
+        if err or not result or not result.contents then
+            return
         end
-    end
 
-    -- 2. Tu flujo original: Otter -> Noice -> LSP nativo
-    local ok_otter, otter = pcall(require, "otter")
-    if ok_otter then
-        otter.ask_hover()
-    else
-        local ok_noice, noice = pcall(require, "noice")
-        if ok_noice then
-            noice.lsp.hover()
+        -- Si un servidor respondió con contenido válido, renderizarlo con Noice o el flotante nativo
+        local ok_noice, noice_handlers = pcall(require, "noice.lsp.handlers")
+        if ok_noice and noice_handlers.hover then
+            noice_handlers.hover(err, result, ctx, config)
         else
-            vim.lsp.buf.hover()
+            vim.lsp.handlers["textDocument/hover"](
+                err,
+                result,
+                ctx,
+                vim.tbl_deep_extend("force", config or {}, {
+                    border = "rounded",
+                    focusables = false,
+                })
+            )
         end
-    end
-end, "LSP / Otter / HTML-CSS Hover Docs")
-
+    end)
+end, "Universal Silent LSP Hover")
 
 nmap("gd", vim.lsp.buf.definition, "LSP: Definition")
 nmap("gr", vim.lsp.buf.references, "LSP: References")
@@ -422,78 +410,17 @@ end, "LSP: Prev diagnostic")
 
 nmap("<leader>rn", function()
     local ok_otter, otter = pcall(require, "otter")
-    if ok_otter then
-        otter.ask_rename()
-    else
-        vim.lsp.buf.rename()
+    if ok_otter and type(otter.rename) == "function" then
+        -- Intentar renombrar vía Otter (ideal para archivos políglotas/múltiples LSPs en el mismo buffer)
+        local status = pcall(otter.rename)
+        if status then
+            return
+        end
     end
+
+    -- Fallback universal nativo para cualquier archivo o LSP estándar
+    vim.lsp.buf.rename()
 end, "LSP / Otter: Rename")
-
-nmap("<leader>ca", vim.lsp.buf.code_action, "LSP: Code Action")
-
-nmap("GI", function()
-    local items = vim.inspect_pos()
-    local lines = {}
-
-    if #items.treesitter > 0 then
-        table.insert(lines, "Treesitter:")
-        for _, capture in ipairs(items.treesitter) do
-            table.insert(lines, string.format("  - @%s -> %s", capture.capture, capture.hl_group))
-        end
-    end
-
-    if #items.syntax > 0 then
-        if #lines > 0 then
-            table.insert(lines, "")
-        end
-        table.insert(lines, "Syntax:")
-        for _, syn in ipairs(items.syntax) do
-            table.insert(lines, string.format("  - %s -> %s", syn.hl_group, syn.hl_group))
-        end
-    end
-
-    if #lines == 0 then
-        lines = { "No highlight information found here." }
-    end
-
-    vim.lsp.util.open_floating_preview(lines, "markdown", {
-        border = "rounded",
-        focusable = true,
-        focus = true,
-    })
-end, "Inspect highlights in floating window")
-
--- =========================================================
--- FORMATO / LSP
--- =========================================================
-nmap("<leader>f", function()
-    local ok_conform, conform = pcall(require, "conform")
-    if ok_conform then
-        conform.format({ async = true, lsp_fallback = true })
-    else
-        vim.lsp.buf.format({ async = true })
-    end
-end, "Format: File")
-
-nmap("gK", function()
-    vim.lsp.buf.hover()
-end, "LSP Hover Docs")
-
-nmap("gd", vim.lsp.buf.definition, "LSP: Definition")
-nmap("gr", vim.lsp.buf.references, "LSP: References")
-nmap("GD", vim.diagnostic.open_float, "LSP: Show diagnostic float")
-nmap("GR", vim.diagnostic.setloclist, "LSP: Open Loclist")
-
-nmap("gn", function()
-    vim.diagnostic.jump({ count = 1 })
-end, "LSP: Next diagnostic")
-
-nmap("gN", function()
-    vim.diagnostic.jump({ count = -1 })
-end, "LSP: Prev diagnostic")
-
-nmap("<leader>rn", vim.lsp.buf.rename, "LSP: Rename")
-
 nmap("<leader>ca", vim.lsp.buf.code_action, "LSP: Code Action")
 
 nmap("GI", function()
