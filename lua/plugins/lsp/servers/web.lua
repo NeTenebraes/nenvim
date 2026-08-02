@@ -50,7 +50,22 @@ vim.lsp.config("volar", {
 vim.lsp.config("html", {
     cmd = { "vscode-html-language-server", "--stdio" },
     filetypes = { "html", "templ" },
-    root_markers = { ".git", "package.json" },
+    root_markers = { ".git", "package.json", "index.html" },
+    init_options = {
+        provideFormatter = true,
+        embeddedLanguages = {
+            css = true,
+            javascript = true,
+        },
+        configurationSection = { "html", "css", "javascript" },
+    },
+    settings = {
+        html = {
+            suggest = {
+                html5 = true,
+            },
+        },
+    },
 })
 
 -- CSS
@@ -58,6 +73,14 @@ vim.lsp.config("cssls", {
     cmd = { "vscode-css-language-server", "--stdio" },
     filetypes = { "css", "scss", "less" },
     root_markers = { ".git", "package.json" },
+    settings = {
+        css = {
+            validate = true,
+            lint = {
+                unknownAtRules = "ignore",
+            },
+        },
+    },
 })
 
 -- TailwindCSS

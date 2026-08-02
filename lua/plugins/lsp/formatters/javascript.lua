@@ -17,10 +17,11 @@
 -- 1. CONFIG
 local defaults = {
     tabWidth = 4,
-    useTabs = false,
+    useTabs = true, -- Cambiado a true (activa tabs)
     semi = true,
-    singleQuote = false,
-    trailingComma = "es5",
+    singleQuote = true, -- Comillas simples (estándar JS/TS)
+    trailingComma = "all", -- Estándar moderno de Prettier v3+
+    printWidth = 80,
 }
 
 -- Archivos de configuración de Prettier reconocidos habitualmente
@@ -79,7 +80,7 @@ return {
                 end
 
                 return {
-                    "--no-config",
+                    "--no-editorconfig",
                     "--tab-width",
                     tostring(defaults.tabWidth),
                     "--use-tabs",
