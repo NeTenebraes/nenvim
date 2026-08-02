@@ -367,10 +367,34 @@ nmap("<leader>f", function()
     end
 end, "Format: File")
 
-nmap("gK", function()
+nmap("K", function()
+    -- 1. Intentar hover con html-css si estamos en un contexto de clases/IDs HTML o CSS
+    local line = vim.api.nvim_get_current_line()
+    local ft = vim.bo.filetype
+    local html_fts = { "html", "css", "javascriptreact", "typescriptreact", "vue", "svelte", "php" }
+
+    if vim.tbl_contains(html_fts, ft) then
+        -- Detectar si la línea tiene atributos de clase/id o estamos en CSS
+        local is_css_context = ft == "css" 
+            or line:match('class%s*=%s*["\'][^"\']*') 
+            or line:match('className%s*=%s*["\'][^"\']*')
+            or line:match('id%s*=%s*["\'][^"\']*')
+
+        if is_css_context then
+            local ok_hc, hc = pcall(require, "html-css")
+            if ok_hc then
+                -- Intentar el hover de html-css (vía comando o función directa del plugin)
+                local ok_exec = pcall(vim.cmd, "HTMLCSSHover")
+                if ok_exec then
+                    return
+                end
+            end
+        end
+    end
+
+    -- 2. Tu flujo original: Otter -> Noice -> LSP nativo
     local ok_otter, otter = pcall(require, "otter")
     if ok_otter then
-        -- ask_hover() es inteligente: si hay código inyectado lo usa, si no, delega automáticamente
         otter.ask_hover()
     else
         local ok_noice, noice = pcall(require, "noice")
@@ -380,7 +404,8 @@ nmap("gK", function()
             vim.lsp.buf.hover()
         end
     end
-end, "LSP / Otter Hover Docs")
+end, "LSP / Otter / HTML-CSS Hover Docs")
+
 
 nmap("gd", vim.lsp.buf.definition, "LSP: Definition")
 nmap("gr", vim.lsp.buf.references, "LSP: References")
