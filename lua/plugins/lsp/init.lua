@@ -59,6 +59,7 @@ local servers = {
     "lua",
     "c",
     "markdown",
+    "html_css",
 }
 
 for _, server in ipairs(servers) do
