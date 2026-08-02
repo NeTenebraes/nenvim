@@ -12,12 +12,24 @@ cmp.setup({
     performance = {
         max_view_entries = 12, -- Evita menús gigantescos que tapen el código
         fetching_timeout = 200, -- Si el LSP tarda, no congela tu escritura
+        debounce = 60,
+        throttle = 30,
+        filtering_context_budget = 3,
+        confirm_resolve_timeout = 80,
+        async_budget = 1,
     },
 
     completion = {
-        -- menuone: muestra el menú aunque haya una sola opción
-        -- noinsert: no mete texto en el buffer hasta que tú lo elijas
         completeopt = "menu,menuone,noinsert",
+    },
+
+    matching = {
+        disallow_symbol_nonprefix_matching = false,
+        disallow_fuzzy_matching = false,
+        disallow_fullfuzzy_matching = false,
+        disallow_partial_fuzzy_matching = false,
+        disallow_partial_matching = false,
+        disallow_prefix_unmatching = false,
     },
 
     window = {
@@ -36,7 +48,7 @@ cmp.setup({
     formatting = {
         fields = { "kind", "abbr", "menu" },
         format = function(entry, vim_item)
-            -- Diccionario nativo de iconos estéticos (Cero dependencias de otros plugins)
+            -- Diccionario nativo de iconos
             local kind_icons = {
                 Text = "󰉿",
                 Method = "󰆧",
@@ -52,7 +64,7 @@ cmp.setup({
                 Value = "󰎨",
                 Enum = "",
                 Keyword = "󰌋",
-                Snippet = "󰩫", -- Icono limpio para tus Snippets
+                Snippet = "󰩫",
                 Color = "󰏘",
                 File = "󰈙",
                 Reference = "󰈚",
@@ -65,9 +77,7 @@ cmp.setup({
                 TypeParameter = "󰅲",
             }
 
-            -- Reemplaza la palabra completa ("Snippet", "Function") por solo su icono con aire a los lados
             vim_item.kind = string.format(" %s ", kind_icons[vim_item.kind] or "")
-
             -- Etiquetas estéticas y ordenadas para el lado derecho
             local menus = {
                 nvim_lsp = "󰅩 LSP",
@@ -78,7 +88,6 @@ cmp.setup({
 
             vim_item.menu = menus[entry.source.name] or entry.source.name
 
-            -- Espaciado óptimo para que el texto central no choque contra la etiqueta derecha
             vim_item.abbr = vim_item.abbr .. "    "
 
             return vim_item
@@ -93,12 +102,19 @@ cmp.setup({
         end,
     },
 
-    -- 🔌 Fuentes ordenadas de forma inteligente por prioridad de desarrollo
     sources = cmp.config.sources({
-        { name = "luasnip", priority = 1000 }, -- Los snippets primero para programar como rayo
-        { name = "nvim_lsp", priority = 750 }, -- Autocompletado inteligente de tu lenguaje
-        { name = "path", priority = 500 }, -- Rutas de archivos relativos/absolutos
+        { name = "nvim_lsp", priority = 1000 },
+        { name = "luasnip", priority = 750 },
+        { name = "path", priority = 500 },
     }, {
-        { name = "buffer", priority = 250 }, -- Palabras sueltas en tu archivo actual
+        {
+            name = "buffer",
+            priority = 250,
+            option = {
+                get_bufnrs = function()
+                    return vim.api.nvim_list_bufs()
+                end,
+            },
+        },
     }),
 })
