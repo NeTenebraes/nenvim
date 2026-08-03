@@ -382,19 +382,24 @@ nmap("K", function()
         if ok_noice and noice_handlers.hover then
             noice_handlers.hover(err, result, ctx, config)
         else
-            vim.lsp.handlers["textDocument/hover"](
+            local _, winnr = vim.lsp.handlers["textDocument/hover"](
                 err,
                 result,
                 ctx,
                 vim.tbl_deep_extend("force", config or {}, {
                     border = "rounded",
-                    focusables = false,
+                    focusable = true,
                 })
             )
+
+            -- Desactivar diagnósticos explícitamente en la ventana flotante generada
+            if winnr and vim.api.nvim_win_is_valid(winnr) then
+                local bufnr = vim.api.nvim_win_get_buf(winnr)
+                vim.diagnostic.enable(false, { bufnr = bufnr })
+            end
         end
     end)
 end, "Universal Silent LSP Hover")
-
 nmap("gd", vim.lsp.buf.definition, "LSP: Definition")
 nmap("gr", vim.lsp.buf.references, "LSP: References")
 nmap("GD", vim.diagnostic.open_float, "LSP: Show diagnostic float")
