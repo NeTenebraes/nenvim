@@ -1,10 +1,57 @@
--- =========================================================
--- lua/plugins/lsp/formatters/javascript.lua
--- Reglas de Prettier para JS / TS / Web (Sin .prettierrc)
--- =========================================================
+-- ============================================================================
+-- MÓDULO: lua/plugins/lsp/formatters/javascript.lua
+-- PROPÓSITO: Configuración de Prettier para JS/TS y Ecosistema Web.
+--
+-- COMPORTAMIENTO:
+--   - Busca un binario local en node_modules/.bin/prettier antes de usar el global.
+--   - Si el proyecto contiene un archivo .prettierrc*, respeta dicha config.
+--   - Si NO existe config local, aplica el fallback usando las reglas definidas en `defaults`.
+--   - Construye dinámicamente tanto las banderas de CLI como el JSON para :FormatInit.
+--
+-- HERRAMIENTAS REQUERIDAS:
+--   - Prettier (vía npm, Mason o paquete del sistema)
+--
+-- COMPATIBILIDAD: Neovim 0.10+ (Usa vim.fs.root nativo)
+-- ============================================================================
+
+-- 1. CONFIG
+local defaults = {
+    tabWidth = 4,
+    useTabs = true, -- Cambiado a true (activa tabs)
+    semi = true,
+    singleQuote = true, -- Comillas simples (estándar JS/TS)
+    trailingComma = "all", -- Estándar moderno de Prettier v3+
+    printWidth = 80,
+}
+
+-- Archivos de configuración de Prettier reconocidos habitualmente
+local prettier_configs = {
+    ".prettierrc",
+    ".prettierrc.json",
+    ".prettierrc.yml",
+    ".prettierrc.yaml",
+    ".prettierrc.json5",
+    ".prettierrc.js",
+    ".prettierrc.cjs",
+    ".prettierrc.mjs",
+    "prettier.config.js",
+    "prettier.config.cjs",
+    "prettier.config.mjs",
+}
+
+local function has_local_prettier_config(ctx)
+    local root = vim.fs.root(ctx.buf, prettier_configs)
+    return root ~= nil
+end
 
 return {
-    -- 1. Mapeo de filetypes a usar Prettier
+    -- Plantilla generada dinámicamente a partir de `defaults`
+    init_config = {
+        filename = ".prettierrc",
+        content = vim.json.encode(defaults),
+    },
+
+    -- Mapeo de filetypes a usar Prettier
     formatters_by_ft = {
         javascript = { "prettier" },
         typescript = { "prettier" },
@@ -20,23 +67,33 @@ return {
         yaml = { "prettier" },
     },
 
-    -- 2. Sobreescritura nativa de Prettier
+    -- Sobreescritura nativa de Prettier
     formatters = {
         prettier = {
-            -- A) Forzamos a Conform a ignorar archivos de configuración locales (.prettierrc)
+            prefer_local = "node_modules/.bin",
             require_cwd = false,
 
-            -- B) Pasamos las banderas globales directamente mediante prepend_args
-            -- Conform se encarga automáticamente de agregar --stdin-filepath y manejar la entrada
-            prepend_args = {
-                "--no-config", -- Ignora .prettierrc o package.json
-                "--tab-width",
-                "4", -- Indentación global de 4 espacios
-                "--use-tabs",
-                "false", -- Usa espacios reales
-            },
+            -- Banderas inyectadas dinámicamente desde `defaults` cuando no hay config local
+            prepend_args = function(self, ctx)
+                if has_local_prettier_config(ctx) then
+                    return {}
+                end
 
-            -- C) Mapeo de parsers recomendado por Conform para evitar fallos de sintaxis
+                return {
+                    "--no-editorconfig",
+                    "--tab-width",
+                    tostring(defaults.tabWidth),
+                    "--use-tabs",
+                    tostring(defaults.useTabs),
+                    "--semi",
+                    tostring(defaults.semi),
+                    "--single-quote",
+                    tostring(defaults.singleQuote),
+                    "--trailing-comma",
+                    defaults.trailingComma,
+                }
+            end,
+
             options = {
                 ft_parsers = {
                     javascript = "babel",

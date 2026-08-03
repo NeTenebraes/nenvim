@@ -7,8 +7,16 @@
 local opt = vim.opt
 
 -- === UI GENERAL ===
-vim.g.netrw_banner = 0 -- Oculta el banner de netrw cuando se use el explorador nativo.
-vim.g.loaded_netrw = 1 -- Desactiva netrw para evitar conflictos con otros file explorers.
+-- Activar el ratón solo para posicionar el cursor (click izquierdo)
+vim.opt.mouse = "n"
+-- Cambiar el modelo para que el clic derecho no abra ningún menú emergente
+vim.opt.mousemodel = "extend"
+-- Desactivar el scroll vertical y horizontal con la rueda
+vim.opt.mousescroll = "ver:0,hor:0"
+-- Desactivar el clic derecho para que no haga nada
+vim.keymap.set({ "n", "v", "i" }, "<RightMouse>", "<Nop>")
+-- Desactivar el clic de la rueda (clic central)
+vim.keymap.set({ "n", "v", "i" }, "<MiddleMouse>", "<Nop>")
 vim.g.loaded_netrwPlugin = 1 -- Desactiva el plugin de netrw por completo.
 vim.opt.timeoutlen = 300
 
@@ -66,10 +74,10 @@ opt.foldcolumn = "0" -- No muestra columna extra para folds.
 opt.foldtext = "" -- Usa la línea original como texto del fold.
 
 vim.api.nvim_create_autocmd("TextYankPost", {
-	desc = "Resalta el texto copiado",
-	callback = function()
-		vim.highlight.on_yank({ higroup = "IncSearch", timeout = 120 })
-	end,
+    desc = "Resalta el texto copiado",
+    callback = function()
+        vim.highlight.on_yank({ higroup = "IncSearch", timeout = 120 })
+    end,
 })
 
 -- =========================================================
@@ -77,24 +85,24 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- =========================================================
 local status, theme = pcall(require, "themes.dark_cyan")
 if status then
-	theme.setup()
+    theme.setup()
 else
-	vim.notify("Error: No se pudo cargar el theme.lua", vim.log.levels.ERROR)
+    vim.notify("Error: No se pudo cargar el theme.lua", vim.log.levels.ERROR)
 end
 
 -- =========================================================
 -- RESTAURAR ÚLTIMA POSICIÓN DEL CURSOR AL INICIAR
 -- =========================================================
 vim.api.nvim_create_autocmd("BufReadPost", {
-	callback = function()
-		local mark = vim.api.nvim_buf_get_mark(0, '"')
-		local lcount = vim.api.nvim_buf_line_count(0)
-		if mark[1] > 0 and mark[1] <= lcount then
-			pcall(vim.api.nvim_win_set_cursor, 0, mark)
-		end
-	end,
+    callback = function()
+        local mark = vim.api.nvim_buf_get_mark(0, '"')
+        local lcount = vim.api.nvim_buf_line_count(0)
+        if mark[1] > 0 and mark[1] <= lcount then
+            pcall(vim.api.nvim_win_set_cursor, 0, mark)
+        end
+    end,
 })
 
 vim.keymap.set("n", "<leader>I", function()
-	vim.cmd("Inspect")
+    vim.cmd("Inspect")
 end, { desc = "Inspect nativo" })
