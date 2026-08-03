@@ -33,6 +33,7 @@ M.modules = {
     "plugins.flash",
     "plugins.live-server",
     "plugins.multi_cursor",
+    "plugins.trident",
 
     -- Entorno LSP / Configs de Desarrollo (En lua/plugins/lsp/)
     "plugins.lsp.lazydev",
