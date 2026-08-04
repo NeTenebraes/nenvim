@@ -1,121 +1,134 @@
 -- =========================================================
--- treesitter.lua
--- Treesitter base para resaltado, indentado y soporte de autotag.
+-- lua/plugins/treesitter.lua (Neovim 0.12)
 -- =========================================================
 
-local ok, ts = pcall(require, "nvim-treesitter")
-if not ok then
-	return
+-- Lista masiva de lenguajes a asegurar/instalar
+local parsers = {
+    -- Base / Vim
+    "lua",
+    "vim",
+    "vimdoc",
+    "query",
+    "markdown",
+    "markdown_inline",
+
+    -- Shell & Configs
+    "bash",
+    "awk",
+    "make",
+    "cmake",
+    "toml",
+    "yaml",
+    "json",
+    "regex",
+    "diff",
+    "gitignore",
+    "gitcommit",
+
+    -- Sistemas & Compilados
+    "c",
+    "cpp",
+    "rust",
+    "go",
+    "zig",
+    "python",
+    "java",
+
+    -- Web / Frontend
+    "html",
+    "css",
+    "scss",
+    "javascript",
+    "typescript",
+    "tsx",
+    "svelte",
+    "vue",
+    "astro",
+    "graphql",
+
+    -- Base de datos & DevOps
+    "sql",
+    "dockerfile",
+    "xml",
+}
+
+local ok_ts, ts = pcall(require, "nvim-treesitter")
+if not ok_ts then
+    return
 end
 
-ts.install({
-	ignore_install = { "tmux" },
+-- 1. Definir directorio nativo
+local install_dir = vim.fn.stdpath("data") .. "/site"
+vim.opt.runtimepath:append(install_dir)
 
-	-- Base
-	"lua",
-	"vim",
-	"vimdoc",
-	"query",
-	"markdown",
-	"markdown_inline",
-
-	-- Shell / sistema
-	"bash",
-	"awk",
-	"make",
-	"cmake",
-
-	-- Lenguajes principales
-	"c",
-	"cpp",
-	"python",
-	"java",
-
-	-- Web
-	"html",
-	"css",
-	"javascript",
-	"typescript",
-	"tsx",
-	"json",
-	"yaml",
-	"toml",
-	"scss",
-	"dockerfile",
-	"graphql",
-	"xml",
-	"svelte",
-	"vue",
-	"astro",
-
-	-- Otros útiles
-	"sql",
-	"regex",
-	"diff",
-	"gitignore",
-	"gitcommit",
+ts.setup({
+    install_dir = install_dir,
 })
 
+-- 2. Instalador automático sin bloquear el arranque (no-op si ya existen)
+vim.schedule(function()
+    pcall(function()
+        ts.install(parsers, { summary = false })
+    end)
+end)
+
+-- 3. Autocomando para activar Resaltado e Indentación por FileType
 vim.api.nvim_create_autocmd("FileType", {
-	callback = function(args)
-		local buftype = vim.bo[args.buf].buftype
-		local filetype = vim.bo[args.buf].filetype
+    group = vim.api.nvim_create_augroup("user_treesitter", { clear = true }),
+    callback = function(ev)
+        local buftype = vim.bo[ev.buf].buftype
+        local ignore_ft = {
+            "help",
+            "qf",
+            "checkhealth",
+            "snacks_picker_input",
+            "snacks_picker_list",
+        }
 
-		if buftype ~= "" then
-			return
-		end
+        if buftype ~= "" or vim.tbl_contains(ignore_ft, ev.match) then
+            return
+        end
 
-		local ignore_ft = {
-			"help",
-			"qf",
-			"checkhealth",
-			"snacks_picker_input",
-			"snacks_picker_list",
-		}
+        -- Inicia el resaltado nativo
+        pcall(vim.treesitter.start)
 
-		if vim.tbl_contains(ignore_ft, filetype) then
-			return
-		end
-
-		local success, parser = pcall(vim.treesitter.get_parser, args.buf)
-		if success and parser then
-			vim.treesitter.start(args.buf)
-			vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-		end
-	end,
+        -- Indentación de nvim-treesitter
+        vim.bo[ev.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+    end,
 })
 
-vim.opt.foldmethod = "expr"
-vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+-- 4. Plegado (Folds)
+vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.wo.foldmethod = "expr"
 vim.opt.foldenable = false
 vim.opt.foldlevel = 99
 
 -- =========================================================
--- 👑 STICKY SCROLL (Contexto superior al bajar)
+-- 👑 STICKY SCROLL
 -- =========================================================
-local ok_context, context = pcall(require, "treesitter_context") -- 🎯 ¡Cambiado a guion bajo!
+local ok_context, context = pcall(require, "treesitter_context")
 if ok_context then
-	context.setup({
-		enable = true, -- Activar el plugin
-		max_lines = 4, -- Cuántas líneas fijadas como máximo arriba (para que no tape tu pantalla)
-		min_window_height = 0, -- Monitorear en cualquier tamaño de ventana
-		line_numbers = true, -- Muestra los números de línea reales del if/función arriba
-		multiline_threshold = 1, -- Si el header ocupa mucho, solo fija la primera línea
-		trim_scope = "outer", -- Descarta el exceso de scopes externos si pasa el max_lines
-		mode = "cursor", -- Sigue el contexto basado en dónde está tu cursor
-	})
+    context.setup({
+        enable = true,
+        max_lines = 4,
+        min_window_height = 0,
+        line_numbers = true,
+        multiline_threshold = 1,
+        trim_scope = "outer",
+        mode = "cursor",
+    })
 end
 
 -- =========================================================
--- 🏷️ AUTO CLOSE TAG (Solo abre y cierra)
+-- 🏷️ AUTO CLOSE TAG
 -- =========================================================
 local ok_autotag, autotag = pcall(require, "nvim-ts-autotag")
 if ok_autotag then
-	autotag.setup({
-		opts = {
-			enable_close = true,
-			enable_rename = true,
-			enable_close_on_slash = true,
-		},
-	})
+    autotag.setup({
+        opts = {
+            enable_close = true,
+            enable_rename = true,
+            enable_close_on_slash = true,
+        },
+    })
 end
